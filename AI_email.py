@@ -18,7 +18,7 @@ def get_credential():
         parts = file.read()
     credential = parts.split(",")
     return credential
-        
+
 
 def main():
     user, password = get_credential()
@@ -42,11 +42,12 @@ def main():
     status, messages = con.select('Inbox') 
     print('\n')
     
-    # number of top emails to fetch
-    N = 3
     # total number of emails
     messages = int(messages[0])
     print('number of messages: ' + str(messages) + '\n\n')
+    
+    # number of top emails to fetch
+    N = 5
     
     for i in range(messages, messages-N, -1):
         # fetch the email message by ID
@@ -132,7 +133,7 @@ def main():
     # close the connection and logout
     con.close()
     con.logout()
-    
+
     
 
 if __name__ == "__main__":
