@@ -30,15 +30,9 @@ def search(key, value, con):
 # Function to get the list of emails under this label
 def get_emails(result_bytes, con):
     msgs = [] # all the email data are pushed inside an array
-    i = 0
     for num in result_bytes[0].split():
-        print(num)
         typ, data = con.fetch(num, '(RFC822)')
-        msgs.append(data)
-        print(msgs)
-        if i==2:
-            break
-        i += 1
+        msgs.append(data[0][1].decode('utf-8'))
     return msgs
  
 
@@ -52,22 +46,18 @@ def main():
     # this is done to make SSL connection with GMAIL
     con = imaplib.IMAP4_SSL(imap_url, imap_port) 
     
-    print('before login')
     # logging the user in
     con.login(user, password)
-    print('after login')
     
     # calling function to check for email under this label
     con.select('Inbox') 
     
     # fetching emails from this user "tu**h*****1@gmail.com"
+    global msgs
     msgs = get_emails(search('FROM', 'kimanpark33@gmail.com', con), con)
     
     # Uncomment this to see what actually comes as data 
-    print(msgs) 
-    
-    global test
-    test = msgs
+    # print(msgs) 
     
     # Finding the required content from our msgs
     # User can make custom changes in this part to
