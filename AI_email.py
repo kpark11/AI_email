@@ -21,7 +21,6 @@ def get_credential():
         
 
 def main():
-    
     user, password = get_credential()
     
     imap_url = 'imap.gmail.com'
@@ -34,9 +33,14 @@ def main():
     con.login(user, password)
     
     # calling function to check for email under this label
-    selection = con.list()
-    print('selections: ' + str(selection) + '\n\n')
+    status, selections = con.list()
+    print('Status:', status)
+    print('\n')
+    print('selections:')
+    for selection in selections:
+        print(selection.decode("utf-8").split('"/"'))
     status, messages = con.select('Inbox') 
+    print('\n')
     
     # number of top emails to fetch
     N = 3
@@ -62,9 +66,16 @@ def main():
                 From, encoding = decode_header(msg.get("From"))[0]
                 if isinstance(From, bytes):
                     From = From.decode(encoding)
+                    
+                # decode email date
+                Date, encoding = decode_header(msg.get("Date"))[0]
+                if isinstance(From, bytes):
+                    Date = Date.decode(encoding)
                 
                 print("Subject:", subject)
                 print("From:", From)
+                print("Date:", Date)
+                print("\n")
                 
                 # if the email message is multipart
                 if msg.is_multipart():
@@ -80,7 +91,7 @@ def main():
                             pass
                         if content_type == "text/plain" and "attachment" not in content_disposition:
                             # print text/plain emails and skip attachments
-                            print(body)
+                            print("Body:", body)
                         '''
                         elif "attachment" in content_disposition:
                             # download attachment
@@ -117,6 +128,7 @@ def main():
                     webbrowser.open(filepath)
                 '''
                 print("="*100)
+                print('\n\n')
     # close the connection and logout
     con.close()
     con.logout()
