@@ -1,0 +1,43 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;700;800&display=swap');
+
+
+
+html {
+  font-size: 80.5%;
+}
+
+body {
+  display: grid;
+  place-content: center;
+  color: hsl(49 77% 98%);
+  font-family: 'Open Sans';
+  background: linear-gradient(to top right, #9999ff, hsl(168, 76%, 36%));
+  min-height: 100vh;
+  padding: 1rem;
+  overflow-x: flex;
+}
+
+
+.list:hover {
+    opacity: 0.5;
+    background-color: #23342d;
+
+    -webkit-transition: all 0.5s linear;
+    transition: all 0.5s linear;
+}
+
+.scrollbar_style::-webkit-scrollbar {
+	width: 8px;
+}
+
+.scrollbar_style::-webkit-scrollbar-track {
+	border-radius: 8px;
+	background-color: #e7e7e7;
+	border: 1px solid #cacaca;
+	box-shadow: inset 0 0 6px rgba(0, 0, 0, .3);
+}
+
+.scrollbar_style::-webkit-scrollbar-thumb {
+	border-radius: 8px;
+	background-color: #363636;
+}
