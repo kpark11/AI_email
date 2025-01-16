@@ -8,7 +8,6 @@ Created on Mon Jan 13 16:50:21 2025
 import imaplib
 import email
 from email.header import decode_header
-import webbrowser
 import os
 
 from flask import Flask
@@ -134,10 +133,13 @@ def getEmail(con, start, end):
 
 
 
+
+
+
+
+
 # This loads the .env file
-load_dotenv('ID.env')
-load_dotenv('PASSWORD.env')
-load_dotenv('SECRET_KEY.env')
+load_dotenv('.env')
 
 
 #---------------------------------------------------------------------------------------------------
@@ -154,12 +156,12 @@ app = dash.Dash(
 # Define imap url and port
 imap_url = 'imap.gmail.com'
 imap_port = 993
-        
+
 # this is done to make SSL connection with GMAIL
 con = imaplib.IMAP4_SSL(imap_url, imap_port) 
 
 # logging the user in
-con.login(os.getenv("ID")[:-1], os.getenv("PASSWORD")[:-1])
+con.login(os.getenv("ID"), os.getenv("PASSWORD"))
 
 # Updating the Flask Server configuration with Secret Key to encrypt the user session cookie
 server.config.update(SECRET_KEY=os.getenv("SECRET_KEY"))
