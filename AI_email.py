@@ -201,6 +201,7 @@ if status == 'OK':
 else:
     color = 'red'
 app.layout = html.Div([
+    html.H1('AI Email', className='header'),
     html.H1(f'Status: {status}', style={'color':color}),
     #html.Br(),
     html.Label('Selections:'),
