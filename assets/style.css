@@ -1,20 +1,20 @@
-@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;700;800&display=swap');
+@import url(https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;700;800&display=swap);
 
 
 
 html {
-  font-size: 80.5%;
+	font-size: 80.5%;
 }
 
 body {
-  display: grid;
-  // place-content: left;
-  color: hsl(49 77% 98%);
-  font-family: 'Open Sans';
-  background: linear-gradient(to top right, #9999ff, hsl(168, 76%, 36%));
-  min-height: 100vh;
-  padding: 0.5rem;
-  overflow-x: flex;
+	display: grid;
+	// place-content: left;
+	color: hsl(49 77% 98%);
+	font-family: Open Sans;
+	background: linear-gradient(125deg, rgba(0,0,0,1) 0%, rgba(61,61,64,1) 73%, hsla(304 100% 0% / 0.75));
+	min-height: 100vh;
+	padding: 0.5rem;
+	overflow-x: flex;
 }
 
 .header {
@@ -25,7 +25,7 @@ body {
 
 .list:hover {
     opacity: 0.5;
-    background-color: #23342d;
+    background-color: rgba(225, 225, 225, .2);
 
     -webkit-transition: all 0.5s linear;
     transition: all 0.5s linear;
@@ -63,4 +63,14 @@ body {
 }
 @keyframes l4-2 {
    80%,100% {box-shadow: 16px 0 #FF3D7F}
+}
+
+.Button {
+	font-size: 12px;
+	width: 140px;
+	display: inline-block; 
+	margin-bottom: 10px;
+	margin-right: 5px;
+	height:37px;
+	verticalAlign: top}
 }

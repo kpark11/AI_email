@@ -17,6 +17,7 @@ from dotenv import load_dotenv
 import dash
 from dash import dcc, html, State
 from dash.dependencies import Input, Output
+from dash.exceptions import PreventUpdate
 import dash_bootstrap_components as dbc
 import plotly.graph_objs as go
 import plotly.express as px
@@ -226,19 +227,25 @@ app.layout = html.Div([
     html.Button('<', style={'display':'inline-block','padding-left':'3px','width':'30px',
                             'align-items': 'center', 'justify-content': 'center',
                             'border-radius':'5px',
-                            'border':'1px solid rgba(0,0,0,.3)'},
+                            'background':'linear-gradient(to right, #76b852 0%, #8DC26F  51%, #76b852  100%)',
+                            #'border':'1px solid rgba(0,0,0,.3)',
+                            },
                 id='back'),
     html.Button('>', style={'display':'inline-block','padding-left':'3px','width':'30px',
                             'align-items': 'center', 'justify-content': 'center',
-                            'border-radius':'5px',
-                            'border':'1px solid rgba(0,0,0,.3)'},
+                            'border-radius':'5px', 
+                            'background':'linear-gradient(to right, #76b852 0%, #8DC26F  51%, #76b852  100%)',
+                            #'border':'1px solid rgba(0,0,0,.3)',
+                            },
                 id='forward'),
+    
+         
     html.Br(),
     html.Div([html.Div([dcc.Markdown(f'**Subject**: {Subj}'), 
                         dcc.Markdown(f'**From**: {Fr}'), 
                         dcc.Markdown(f'**Date**: {Dat}'), 
                         #html.Br(),
-                        ], style={'border':'1px solid rgba(0, 0, 0, .3)',
+                        ], style={'border':'1px solid rgba(225, 225, 225, .3)',
                                   'width':'450px',
                                   #'text-align':'center',
                                   'padding-left':'5px',
@@ -249,72 +256,101 @@ app.layout = html.Div([
                         id=f'email_{i}',
                         className='list') 
               for i, (Subj,Fr,Dat) in enumerate(zip(Subject, From, Date))], style={'display':'inline-block'}),
-    html.Div(f'{Body[0]}',id='body', style={'display':'inline-block',
-                                            'vertical-align': 'top',
-                                            'padding-left':'30px',
-                                            'overflow-y':'auto','overflow-wrap':'break-word',
-                                            'width':'800px','height':'600px',},
-             className="scrollbar_style")
+    html.Div(dcc.Loading([
+                    dcc.Markdown(f'**Subject**: {Subject[0]}'),
+                    dcc.Markdown(f'**From**: {From[0]}'),
+                    dcc.Markdown(f'**Date**: {Date[0]}'),
+
+                    html.Div(f'{Body[0]}',id='body', style={'overflow-y':'auto','overflow-wrap':'break-word',},
+                             className="scrollbar_style")], 
+        type='circle', id='loading'), style={'display':'inline-block',
+                                                     'vertical-align': 'top',
+                                                     'padding-left':'30px',
+                                                     'overflow-y':'auto','overflow-wrap':'break-word',
+                                                     'width':'600px','height':'600px',}, className="scrollbar_style"),
+    html.Div([html.Div([html.Button('Summarize', id='summarizer', className='Button'),
+              html.Button('Sentiment Analysis', id='sentiment_analyzer', className='Button'),
+              html.Button('Automatic Reply', id='text_generation', className='Button')
+             ])], style={'width':'100px', 'display':'inline-block', 'vertical-align':'top',
+                         'padding-left':'100px'}),
+    
+    
+                                                                                
     ], className='body')
 
 
 
 
 @app.callback(
-    Output('body', 'children', allow_duplicate=True),
-    Output('email_0', 'n_clicks'),
+    Output('loading', 'children', allow_duplicate=True),
+    Output('email_0', 'n_clicks', allow_duplicate=True),
     Input('email_0', 'n_clicks'),
     prevent_initial_call=True,
 )
     
 def Click_for_body_0(n_click):
-    return Body[0],0
+    Subj_choice = dcc.Markdown(f'**Subject**: {Subject[0]}') 
+    Fr_choice = dcc.Markdown(f'**From**: {From[0]}') 
+    Dat_choice = dcc.Markdown(f'**Date**: {Date[0]}')
+    return [Subj_choice, Fr_choice, Dat_choice, Body[0]],0
     
 @app.callback(
-    Output('body', 'children', allow_duplicate=True),
-    Output('email_1', 'n_clicks'),
+    Output('loading', 'children', allow_duplicate=True),
+    Output('email_1', 'n_clicks', allow_duplicate=True),
     Input('email_1', 'n_clicks'),
     prevent_initial_call=True,
 )
     
 def Click_for_body_1(n_click):
-    return Body[1],0
+    Subj_choice = dcc.Markdown(f'**Subject**: {Subject[1]}') 
+    Fr_choice = dcc.Markdown(f'**From**: {From[1]}') 
+    Dat_choice = dcc.Markdown(f'**Date**: {Date[1]}')
+    return [Subj_choice, Fr_choice, Dat_choice, Body[1]],0
     
     
 @app.callback(
-    Output('body', 'children', allow_duplicate=True),
-    Output('email_2', 'n_clicks'),
+    Output('loading', 'children', allow_duplicate=True),
+    Output('email_2', 'n_clicks', allow_duplicate=True),
     Input('email_2', 'n_clicks'),
     prevent_initial_call=True,
 )
     
 def Click_for_body_2(n_click):
-    return Body[2],0
+    Subj_choice = dcc.Markdown(f'**Subject**: {Subject[2]}') 
+    Fr_choice = dcc.Markdown(f'**From**: {From[2]}') 
+    Dat_choice = dcc.Markdown(f'**Date**: {Date[2]}')
+    return [Subj_choice, Fr_choice, Dat_choice, Body[2]],0
     
     
 @app.callback(
-    Output('body', 'children', allow_duplicate=True),
-    Output('email_3', 'n_clicks'),
+    Output('loading', 'children', allow_duplicate=True),
+    Output('email_3', 'n_clicks', allow_duplicate=True),
     Input('email_3', 'n_clicks'),
     prevent_initial_call=True,
 )
     
 def Click_for_body_3(n_click):
-    return Body[3],0
+    Subj_choice = dcc.Markdown(f'**Subject**: {Subject[3]}') 
+    Fr_choice = dcc.Markdown(f'**From**: {From[3]}') 
+    Dat_choice = dcc.Markdown(f'**Date**: {Date[3]}')
+    return [Subj_choice, Fr_choice, Dat_choice, Body[3]],0
     
     
 @app.callback(
-    Output('body', 'children', allow_duplicate=True),
-    Output('email_4', 'n_clicks'),
+    Output('loading', 'children', allow_duplicate=True),
+    Output('email_4', 'n_clicks',    allow_duplicate=True),
     Input('email_4', 'n_clicks'),
     prevent_initial_call=True,
 )
     
 def Click_for_body_4(n_click):
-    return Body[4],0
+    Subj_choice = dcc.Markdown(f'**Subject**: {Subject[4]}') 
+    Fr_choice = dcc.Markdown(f'**From**: {From[4]}') 
+    Dat_choice = dcc.Markdown(f'**Date**: {Date[4]}')
+    return [Subj_choice, Fr_choice, Dat_choice, Body[4]],0
     
 @app.callback(
-    Output('body','children', allow_duplicate=True),
+    Output('loading','children', allow_duplicate=True),
     Output('email_range','children', allow_duplicate=True),
     Output('email_0','children', allow_duplicate=True),
     Output('email_1','children', allow_duplicate=True),
@@ -328,13 +364,12 @@ def Click_for_body_4(n_click):
     
 def back_range(n_clicks,email_range):
     email_start, email_end = int(email_range.split(' - ')[0]), int(email_range.split(' - ')[1])
-    
-    if email_start == 0 or email_end <= 5:
-        return email_range
+    if email_start <= 0 or email_end <= 5:
+        raise PreventUpdate
     else:
         email_start -= 5
         email_end -= 5
-        global Body
+        global Subject, From, Date, Body
         Subject, From, Date, Body = getEmail(con, messages-email_start, messages-email_end)
         
         grouped_Div = [html.Div([dcc.Markdown(f'**Subject**: {Subj}'), 
@@ -349,12 +384,17 @@ def back_range(n_clicks,email_range):
                                #       'cursor': 'pointer',
                                #       },
                             id=f'email_{i}') for i, (Subj,Fr,Dat) in enumerate(zip(Subject, From, Date))]
+        print(grouped_Div[0])
+        Subj_choice = dcc.Markdown(f'**Subject**: {Subject[0]}') 
+        Fr_choice = dcc.Markdown(f'**From**: {From[0]}') 
+        Dat_choice = dcc.Markdown(f'**Date**: {Date[0]}')        
         
-        return Body[0], str(email_start) + ' - ' + str(email_end), grouped_Div[0], grouped_Div[1], grouped_Div[2], grouped_Div[3], grouped_Div[4]
+        return [Subj_choice, Fr_choice, Dat_choice, Body[0]], \
+    str(email_start) + ' - ' + str(email_end), grouped_Div[0], \
+    grouped_Div[1], grouped_Div[2], grouped_Div[3], grouped_Div[4]
 
-    
 @app.callback(
-    Output('body','children', allow_duplicate=True),
+    Output('loading','children', allow_duplicate=True),
     Output('email_range','children', allow_duplicate=True),
     Output('email_0','children', allow_duplicate=True),
     Output('email_1','children', allow_duplicate=True),
@@ -370,11 +410,11 @@ def forward_range(n_clicks,email_range):
     email_start, email_end = int(email_range.split(' - ')[0]), int(email_range.split(' - ')[1])
     
     if email_end == messages or email_end >= messages-5:
-        return email_range
+        raise PreventUpdate
     else:
         email_start += 5
         email_end += 5
-        global Body
+        global Subject, From, Date, Body
         Subject, From, Date, Body = getEmail(con, messages-email_start, messages-email_end)
         
         grouped_Div = [html.Div([dcc.Markdown(f'**Subject**: {Subj}'), 
@@ -389,7 +429,15 @@ def forward_range(n_clicks,email_range):
                                #       'cursor': 'pointer',
                                #       },
                             id=f'email_{i}') for i, (Subj,Fr,Dat) in enumerate(zip(Subject, From, Date))]
+        print(grouped_Div[0])
         
-        return Body[0], str(email_start) + ' - ' + str(email_end), grouped_Div[0], grouped_Div[1], grouped_Div[2], grouped_Div[3], grouped_Div[4]
+        Subj_choice = dcc.Markdown(f'**Subject**: {Subject[0]}')
+        Fr_choice = dcc.Markdown(f'**From**: {From[0]}')
+        Dat_choice = dcc.Markdown(f'**Date**: {Date[0]}')
+        
+        return [Subj_choice, Fr_choice, Dat_choice, Body[0]], \
+    str(email_start) + ' - ' + str(email_end), grouped_Div[0], \
+    grouped_Div[1], grouped_Div[2], grouped_Div[3], grouped_Div[4]
     
-    
+
+
