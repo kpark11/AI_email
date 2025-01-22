@@ -24,6 +24,14 @@ import plotly.express as px
 
 from bs4 import BeautifulSoup
 
+# For Sentiment Analysis
+from transformers import AutoModelForSequenceClassification
+from transformers import TFAutoModelForSequenceClassification
+from transformers import AutoTokenizer, AutoConfig
+import numpy as np
+from scipy.special import softmax
+
+from transformers import pipeline
 
 
 def getEmail(con, start, end):
@@ -137,13 +145,77 @@ def getEmail(con, start, end):
 
 
 
-
-
-
-
-
 # This loads the .env file
 load_dotenv('.env')
+
+
+
+import re
+from spellchecker import SpellChecker
+from langdetect import detect
+
+
+def remove_html_tags(text):
+    clean_text = re.sub(r'<.*?>', '', text)
+    return clean_text
+
+def remove_special_characters(text):
+    clean_text = re.sub(r'[^a-zA-Z0-9\s]', '', text)
+    return clean_text
+
+def convert_to_lowercase(text):
+    lowercased_text = text.lower()
+    return lowercased_text
+
+def remove_whitespace(text):
+    cleaned_text = ' '.join(text.split())
+    return cleaned_text
+
+def correct_spelling(text):
+    spell = SpellChecker()
+    tokens = word_tokenize(text)
+    corrected_tokens = [spell.correction(word) for word in tokens]
+    corrected_text = ' '.join(corrected_tokens)
+    return corrected_text
+
+def detect_language(text):
+    try:
+        language = detect(text)
+    except:
+        language = 'unknown'
+    return language
+
+
+
+# Load models for sentiment analysis, summarizer, and text generation
+
+# Sentiment Analysis
+sentiment_MODEL = f"cardiffnlp/twitter-roberta-base-sentiment-latest"
+sentiment_task = pipeline("sentiment-analysis", model=sentiment_MODEL, tokenizer=sentiment_MODEL)
+
+def sentiment(text):
+    print('*'*20)
+    print('sentiment: ')
+    print(text)
+    result = sentiment_task(text)
+    print(result)
+    return f'Sentiment Analysis: {result[0]["label"]} ({result[0]["score"]})'
+    
+    
+
+# Summarizer
+summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
+
+def summary(text):
+    print('*'*20)
+    print('summary: ')
+    print(text)
+    summary = summarizer(text, max_length=130, min_length=30, do_sample=False)
+    print(summary)
+    return summary
+
+
+
 
 
 #---------------------------------------------------------------------------------------------------
@@ -268,10 +340,11 @@ app.layout = html.Div([
                                                      'padding-left':'30px',
                                                      'overflow-y':'auto','overflow-wrap':'break-word',
                                                      'width':'600px','height':'600px',}, className="scrollbar_style"),
-    html.Div([html.Div([html.Button('Summarize', id='summarizer', className='Button'),
-              html.Button('Sentiment Analysis', id='sentiment_analyzer', className='Button'),
-              html.Button('Automatic Reply', id='text_generation', className='Button')
-             ])], style={'width':'100px', 'display':'inline-block', 'vertical-align':'top',
+    html.Div([html.Div([
+        dcc.Loading(html.Div('Sentiment Analysis: {sentiment(summary(Body[0]))}'), id='sentiment-analysis'),
+        dcc.Loading(html.Div('Summary: {summary(Body[0])}'), id='summary'),
+        html.Button('Automatic Reply', id='text_generation', className='Button')
+             ])], style={'width':'200px', 'display':'inline-block', 'vertical-align':'top',
                          'padding-left':'100px'}),
     
     
@@ -284,6 +357,8 @@ app.layout = html.Div([
 @app.callback(
     Output('loading', 'children', allow_duplicate=True),
     Output('email_0', 'n_clicks', allow_duplicate=True),
+    Output('sentiment-analysis','children', allow_duplicate=True),
+    Output('summary','children', allow_duplicate=True),
     Input('email_0', 'n_clicks'),
     prevent_initial_call=True,
 )
@@ -292,11 +367,16 @@ def Click_for_body_0(n_click):
     Subj_choice = dcc.Markdown(f'**Subject**: {Subject[0]}') 
     Fr_choice = dcc.Markdown(f'**From**: {From[0]}') 
     Dat_choice = dcc.Markdown(f'**Date**: {Date[0]}')
-    return [Subj_choice, Fr_choice, Dat_choice, Body[0]],0
+    summary_txt = html.Div(f'Sentiment Analysis: {summary(Body[0])}')
+    sentiment_txt = html.Div(f'Sentiment Analysis: {sentiment(summary_txt)}')
+    
+    return [Subj_choice, Fr_choice, Dat_choice, Body[0]], 0, sentiment_txt, summary_txt
     
 @app.callback(
     Output('loading', 'children', allow_duplicate=True),
     Output('email_1', 'n_clicks', allow_duplicate=True),
+    Output('sentiment-analysis','children', allow_duplicate=True),
+    Output('summary','children', allow_duplicate=True),
     Input('email_1', 'n_clicks'),
     prevent_initial_call=True,
 )
@@ -305,12 +385,16 @@ def Click_for_body_1(n_click):
     Subj_choice = dcc.Markdown(f'**Subject**: {Subject[1]}') 
     Fr_choice = dcc.Markdown(f'**From**: {From[1]}') 
     Dat_choice = dcc.Markdown(f'**Date**: {Date[1]}')
-    return [Subj_choice, Fr_choice, Dat_choice, Body[1]],0
+    summary_txt = html.Div(f'Sentiment Analysis: {summary(Body[1])}')
+    sentiment_txt = html.Div(f'Sentiment Analysis: {sentiment(summary_txt)}')
+    return [Subj_choice, Fr_choice, Dat_choice, Body[1]], 0, sentiment_txt, summary_txt
     
     
 @app.callback(
     Output('loading', 'children', allow_duplicate=True),
     Output('email_2', 'n_clicks', allow_duplicate=True),
+    Output('sentiment-analysis','children', allow_duplicate=True),
+    Output('summary','children', allow_duplicate=True),
     Input('email_2', 'n_clicks'),
     prevent_initial_call=True,
 )
@@ -319,12 +403,16 @@ def Click_for_body_2(n_click):
     Subj_choice = dcc.Markdown(f'**Subject**: {Subject[2]}') 
     Fr_choice = dcc.Markdown(f'**From**: {From[2]}') 
     Dat_choice = dcc.Markdown(f'**Date**: {Date[2]}')
-    return [Subj_choice, Fr_choice, Dat_choice, Body[2]],0
+    summary_txt = html.Div(f'Sentiment Analysis: {summary(Body[2])}')
+    sentiment_txt = html.Div(f'Sentiment Analysis: {sentiment(summary_txt)}')
+    return [Subj_choice, Fr_choice, Dat_choice, Body[2]], 0, sentiment_txt, summary_txt
     
     
 @app.callback(
     Output('loading', 'children', allow_duplicate=True),
     Output('email_3', 'n_clicks', allow_duplicate=True),
+    Output('sentiment-analysis','children', allow_duplicate=True),
+    Output('summary','children', allow_duplicate=True),
     Input('email_3', 'n_clicks'),
     prevent_initial_call=True,
 )
@@ -333,12 +421,16 @@ def Click_for_body_3(n_click):
     Subj_choice = dcc.Markdown(f'**Subject**: {Subject[3]}') 
     Fr_choice = dcc.Markdown(f'**From**: {From[3]}') 
     Dat_choice = dcc.Markdown(f'**Date**: {Date[3]}')
-    return [Subj_choice, Fr_choice, Dat_choice, Body[3]],0
+    summary_txt = html.Div(f'Sentiment Analysis: {summary(Body[3])}')
+    sentiment_txt = html.Div(f'Sentiment Analysis: {sentiment(summary_txt)}')
+    return [Subj_choice, Fr_choice, Dat_choice, Body[3]], 0, sentiment_txt, summary_txt
     
     
 @app.callback(
     Output('loading', 'children', allow_duplicate=True),
     Output('email_4', 'n_clicks',    allow_duplicate=True),
+    Output('sentiment-analysis','children', allow_duplicate=True),
+    Output('summary','children', allow_duplicate=True),
     Input('email_4', 'n_clicks'),
     prevent_initial_call=True,
 )
@@ -347,7 +439,9 @@ def Click_for_body_4(n_click):
     Subj_choice = dcc.Markdown(f'**Subject**: {Subject[4]}') 
     Fr_choice = dcc.Markdown(f'**From**: {From[4]}') 
     Dat_choice = dcc.Markdown(f'**Date**: {Date[4]}')
-    return [Subj_choice, Fr_choice, Dat_choice, Body[4]],0
+    summary_txt = html.Div(f'Sentiment Analysis: {summary(Body[4])}')
+    sentiment_txt = html.Div(f'Sentiment Analysis: {sentiment(summary_txt)}')
+    return [Subj_choice, Fr_choice, Dat_choice, Body[4]], 0, sentiment_txt, summary_txt
     
 @app.callback(
     Output('loading','children', allow_duplicate=True),
@@ -357,6 +451,8 @@ def Click_for_body_4(n_click):
     Output('email_2','children', allow_duplicate=True),
     Output('email_3','children', allow_duplicate=True),
     Output('email_4','children', allow_duplicate=True),
+    Output('sentiment-analysis','children', allow_duplicate=True),
+    Output('summary','children', allow_duplicate=True),
     Input('back', 'n_clicks'),
     State('email_range','children'),
     prevent_initial_call=True,
@@ -387,11 +483,14 @@ def back_range(n_clicks,email_range):
         print(grouped_Div[0])
         Subj_choice = dcc.Markdown(f'**Subject**: {Subject[0]}') 
         Fr_choice = dcc.Markdown(f'**From**: {From[0]}') 
-        Dat_choice = dcc.Markdown(f'**Date**: {Date[0]}')        
+        Dat_choice = dcc.Markdown(f'**Date**: {Date[0]}')
+        summary_txt = html.Div(f'Sentiment Analysis: {summary(Body[0])}')
+        sentiment_txt = html.Div(f'Sentiment Analysis: {sentiment(summary_txt)}')
         
         return [Subj_choice, Fr_choice, Dat_choice, Body[0]], \
     str(email_start) + ' - ' + str(email_end), grouped_Div[0], \
-    grouped_Div[1], grouped_Div[2], grouped_Div[3], grouped_Div[4]
+    grouped_Div[1], grouped_Div[2], grouped_Div[3], grouped_Div[4], \
+    sentiment_txt, summary_txt
 
 @app.callback(
     Output('loading','children', allow_duplicate=True),
@@ -401,6 +500,8 @@ def back_range(n_clicks,email_range):
     Output('email_2','children', allow_duplicate=True),
     Output('email_3','children', allow_duplicate=True),
     Output('email_4','children', allow_duplicate=True),
+    Output('sentiment-analysis','children', allow_duplicate=True),
+    Output('summary','children', allow_duplicate=True),
     Input('forward', 'n_clicks'),
     State('email_range','children'),
     prevent_initial_call=True,
@@ -434,10 +535,16 @@ def forward_range(n_clicks,email_range):
         Subj_choice = dcc.Markdown(f'**Subject**: {Subject[0]}')
         Fr_choice = dcc.Markdown(f'**From**: {From[0]}')
         Dat_choice = dcc.Markdown(f'**Date**: {Date[0]}')
+        summary_txt = html.Div(f'Sentiment Analysis: {summary(Body[0])}')
+        sentiment_txt = html.Div(f'Sentiment Analysis: {sentiment(summary_txt)}')
         
         return [Subj_choice, Fr_choice, Dat_choice, Body[0]], \
     str(email_start) + ' - ' + str(email_end), grouped_Div[0], \
-    grouped_Div[1], grouped_Div[2], grouped_Div[3], grouped_Div[4]
+    grouped_Div[1], grouped_Div[2], grouped_Div[3], grouped_Div[4], \
+    sentiment_txt, summary_txt
     
+
+
+
 
 

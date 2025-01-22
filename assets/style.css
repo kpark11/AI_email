@@ -11,7 +11,7 @@ body {
 	// place-content: left;
 	color: hsl(49 77% 98%);
 	font-family: Open Sans;
-	background: linear-gradient(125deg, rgba(0,0,0,1) 0%, rgba(61,61,64,1) 73%, hsla(304 100% 0% / 0.75));
+	background: linear-gradient(125deg, rgba(0,0,0,1) 54%, rgba(61,61,64,1) 73%, hsla(304 100% 0% / 0.75));
 	min-height: 100vh;
 	padding: 0.5rem;
 	overflow-x: flex;
