@@ -267,7 +267,7 @@ def summary(text):
     #print(summary[0]['summary_text'])
     return summary[0]['summary_text']
 
-
+# Have to login in with "huggingface-cli login"
 # Automatic reply text generation
 gen_model_id = "meta-llama/Meta-Llama-3.1-70B-Instruct"
 pipeline = transformers.pipeline(
