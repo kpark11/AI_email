@@ -33,6 +33,16 @@ from scipy.special import softmax
 
 from transformers import pipeline
 
+import re
+from spellchecker import SpellChecker
+from langdetect import detect
+from num2words import num2words
+import emoji
+from nltk import word_tokenize
+from unidecode import unidecode
+import torch
+import transformers
+
 
 def getEmail(con, start, end):
     Subject = []
@@ -150,9 +160,6 @@ load_dotenv('.env')
 
 
 
-import re
-from spellchecker import SpellChecker
-from langdetect import detect
 
 
 def remove_html_tags(text):
@@ -163,6 +170,29 @@ def remove_special_characters(text):
     clean_text = re.sub(r'[^a-zA-Z0-9\s]', '', text)
     return clean_text
 
+def remove_urls(text):
+    # Define a regular expression pattern to match URLs
+    url_pattern = r'https?://\S+|www\.\S+'
+    # Use the re.sub() function to replace all occurrences of URLs with an empty string
+    clean_text = re.sub(url_pattern, '', text)
+    return clean_text
+
+def convert_numbers_to_words(text):
+    words = []
+    for word in text.split():
+        if word.isnumeric():
+            words.append(num2words(word))
+        else:
+            words.append(word)
+    return ' '.join(words)
+
+def convert_accented_to_ascii(text):
+    return unidecode(text)
+
+def convert_emojis_to_words(text):
+    text = emoji.demojize(text)
+    return text
+
 def convert_to_lowercase(text):
     lowercased_text = text.lower()
     return lowercased_text
@@ -171,12 +201,23 @@ def remove_whitespace(text):
     cleaned_text = ' '.join(text.split())
     return cleaned_text
 
+def truncate(text):
+    tokens = word_tokenize(text)
+    tokens = tokens[:512]
+    text = ' '.join(tokens)
+    return text
+
+'''
 def correct_spelling(text):
     spell = SpellChecker()
     tokens = word_tokenize(text)
-    corrected_tokens = [spell.correction(word) for word in tokens]
+    print('tokens: ', tokens)
+    corrected_tokens = [spell.correction(word) if word != None else '' for word in tokens]
+    print('corrected_tokens: ', corrected_tokens)
     corrected_text = ' '.join(corrected_tokens)
+    print('corrected_text: ', corrected_text)
     return corrected_text
+'''
 
 def detect_language(text):
     try:
@@ -190,16 +231,17 @@ def detect_language(text):
 # Load models for sentiment analysis, summarizer, and text generation
 
 # Sentiment Analysis
-sentiment_MODEL = f"cardiffnlp/twitter-roberta-base-sentiment-latest"
+sentiment_MODEL = "cardiffnlp/twitter-roberta-base-sentiment-latest"
 sentiment_task = pipeline("sentiment-analysis", model=sentiment_MODEL, tokenizer=sentiment_MODEL)
 
 def sentiment(text):
-    print('*'*20)
-    print('sentiment: ')
-    print(text)
+    #print('*'*20)
+    #print('sentiment: ')
+
+    #print(text)
     result = sentiment_task(text)
-    print(result)
-    return f'Sentiment Analysis: {result[0]["label"]} ({result[0]["score"]})'
+    #print(result)
+    return f'{result[0]["label"]} ({result[0]["score"]})'
     
     
 
@@ -207,16 +249,48 @@ def sentiment(text):
 summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
 
 def summary(text):
-    print('*'*20)
-    print('summary: ')
-    print(text)
-    summary = summarizer(text, max_length=130, min_length=30, do_sample=False)
-    print(summary)
-    return summary
+    #print('*'*20)
+    #print('summary: ')
+    text = remove_html_tags(text)
+    text = convert_emojis_to_words(text)
+    text = remove_special_characters(text)
+    text = remove_urls(text)
+    text = convert_numbers_to_words(text)
+    text = convert_accented_to_ascii(text)
+    text = convert_to_lowercase(text)
+    text = remove_whitespace(text)
+    text = truncate(text)
+    #text = correct_spelling(text)
+    #print(text)
+    token_num = len([word for word in text.split(' ')])
+    summary = summarizer(text, max_length=token_num, min_length=5, do_sample=False)
+    #print(summary[0]['summary_text'])
+    return summary[0]['summary_text']
 
 
+# Automatic reply text generation
+gen_model_id = "meta-llama/Meta-Llama-3.1-70B-Instruct"
+pipeline = transformers.pipeline(
+    "text-generation",
+    model=gen_model_id,
+    model_kwargs={"torch_dtype": torch.bfloat16},
+    device_map="auto",
+)
 
-
+def auto_reply(text):
+    
+    messages = [
+        {"role": "system", "content": "You are a pirate chatbot who always \
+         responds in pirate speak! You are currently reply to a given email."},
+        {"role": "user", "content": f"{text}"},
+    ]
+    
+    outputs = pipeline(
+        messages,
+        max_new_tokens=400,
+    )
+    print(outputs)
+    return outputs[0]["generated_text"][-1]
 
 #---------------------------------------------------------------------------------------------------
 # Initialize the Flask and Dash app
@@ -271,6 +345,9 @@ start_n = 0
 end_n = 5
 
 Subject, From, Date, Body = getEmail(con, messages, messages-5)
+summary_text = summary(Body[0])
+sentiment_text = sentiment(summary_text)
+sent_color = {'positive':'green', 'neutral':'yellow', 'negative':'red'}
 #---------------------------------------------------------------------------------------------------
 # Create the layout of the app
 #---------------------------------------------------------------------------------------------------
@@ -341,13 +418,18 @@ app.layout = html.Div([
                                                      'overflow-y':'auto','overflow-wrap':'break-word',
                                                      'width':'600px','height':'600px',}, className="scrollbar_style"),
     html.Div([html.Div([
-        dcc.Loading(html.Div('Sentiment Analysis: {sentiment(summary(Body[0]))}'), id='sentiment-analysis'),
-        dcc.Loading(html.Div('Summary: {summary(Body[0])}'), id='summary'),
-        html.Button('Automatic Reply', id='text_generation', className='Button')
+        dcc.Loading(dcc.Markdown(f'**Sentiment Analysis**: {sentiment_text}', style={'color':f'{sent_color[sentiment_text.split(" ")[0]]}'}), id='sentiment-analysis'),
+        html.Br(),
+        html.Br(),
+        dcc.Loading(dcc.Markdown(f'**Summary**: {summary_text}'), id='summary'),
+        html.Br(),
+        html.Br(),
+        html.Button('Automatic Reply', id='text_generation', className='Button'),
+        dcc.Loading('', id='reply')
              ])], style={'width':'200px', 'display':'inline-block', 'vertical-align':'top',
                          'padding-left':'100px'}),
     
-    
+
                                                                                 
     ], className='body')
 
@@ -367,8 +449,9 @@ def Click_for_body_0(n_click):
     Subj_choice = dcc.Markdown(f'**Subject**: {Subject[0]}') 
     Fr_choice = dcc.Markdown(f'**From**: {From[0]}') 
     Dat_choice = dcc.Markdown(f'**Date**: {Date[0]}')
-    summary_txt = html.Div(f'Sentiment Analysis: {summary(Body[0])}')
-    sentiment_txt = html.Div(f'Sentiment Analysis: {sentiment(summary_txt)}')
+    summary_text = summary(Body[0])
+    summary_txt = dcc.Markdown(f'**Summary**: {summary_text}')
+    sentiment_txt = dcc.Markdown(f'**Sentiment Analysis**: {sentiment_text}', style={'color':f'{sent_color[sentiment_text.split(" ")[0]]}'})        
     
     return [Subj_choice, Fr_choice, Dat_choice, Body[0]], 0, sentiment_txt, summary_txt
     
@@ -385,8 +468,9 @@ def Click_for_body_1(n_click):
     Subj_choice = dcc.Markdown(f'**Subject**: {Subject[1]}') 
     Fr_choice = dcc.Markdown(f'**From**: {From[1]}') 
     Dat_choice = dcc.Markdown(f'**Date**: {Date[1]}')
-    summary_txt = html.Div(f'Sentiment Analysis: {summary(Body[1])}')
-    sentiment_txt = html.Div(f'Sentiment Analysis: {sentiment(summary_txt)}')
+    summary_text = summary(Body[1])
+    summary_txt = dcc.Markdown(f'**Summary**: {summary_text}')
+    sentiment_txt = dcc.Markdown(f'**Sentiment Analysis**: {sentiment_text}', style={'color':f'{sent_color[sentiment_text.split(" ")[0]]}'})        
     return [Subj_choice, Fr_choice, Dat_choice, Body[1]], 0, sentiment_txt, summary_txt
     
     
@@ -403,8 +487,9 @@ def Click_for_body_2(n_click):
     Subj_choice = dcc.Markdown(f'**Subject**: {Subject[2]}') 
     Fr_choice = dcc.Markdown(f'**From**: {From[2]}') 
     Dat_choice = dcc.Markdown(f'**Date**: {Date[2]}')
-    summary_txt = html.Div(f'Sentiment Analysis: {summary(Body[2])}')
-    sentiment_txt = html.Div(f'Sentiment Analysis: {sentiment(summary_txt)}')
+    summary_text = summary(Body[2])
+    summary_txt = dcc.Markdown(f'**Summary**: {summary_text}')
+    sentiment_txt = dcc.Markdown(f'**Sentiment Analysis**: {sentiment_text}', style={'color':f'{sent_color[sentiment_text.split(" ")[0]]}'})        
     return [Subj_choice, Fr_choice, Dat_choice, Body[2]], 0, sentiment_txt, summary_txt
     
     
@@ -421,8 +506,9 @@ def Click_for_body_3(n_click):
     Subj_choice = dcc.Markdown(f'**Subject**: {Subject[3]}') 
     Fr_choice = dcc.Markdown(f'**From**: {From[3]}') 
     Dat_choice = dcc.Markdown(f'**Date**: {Date[3]}')
-    summary_txt = html.Div(f'Sentiment Analysis: {summary(Body[3])}')
-    sentiment_txt = html.Div(f'Sentiment Analysis: {sentiment(summary_txt)}')
+    summary_text = summary(Body[3])
+    summary_txt = dcc.Markdown(f'**Summary**: {summary_text}')
+    sentiment_txt = dcc.Markdown(f'**Sentiment Analysis**: {sentiment_text}', style={'color':f'{sent_color[sentiment_text.split(" ")[0]]}'})        
     return [Subj_choice, Fr_choice, Dat_choice, Body[3]], 0, sentiment_txt, summary_txt
     
     
@@ -439,8 +525,9 @@ def Click_for_body_4(n_click):
     Subj_choice = dcc.Markdown(f'**Subject**: {Subject[4]}') 
     Fr_choice = dcc.Markdown(f'**From**: {From[4]}') 
     Dat_choice = dcc.Markdown(f'**Date**: {Date[4]}')
-    summary_txt = html.Div(f'Sentiment Analysis: {summary(Body[4])}')
-    sentiment_txt = html.Div(f'Sentiment Analysis: {sentiment(summary_txt)}')
+    summary_text = summary(Body[4])
+    summary_txt = dcc.Markdown(f'**Summary**: {summary_text}')
+    sentiment_txt = dcc.Markdown(f'**Sentiment Analysis**: {sentiment_text}', style={'color':f'{sent_color[sentiment_text.split(" ")[0]]}'})        
     return [Subj_choice, Fr_choice, Dat_choice, Body[4]], 0, sentiment_txt, summary_txt
     
 @app.callback(
@@ -480,12 +567,15 @@ def back_range(n_clicks,email_range):
                                #       'cursor': 'pointer',
                                #       },
                             id=f'email_{i}') for i, (Subj,Fr,Dat) in enumerate(zip(Subject, From, Date))]
-        print(grouped_Div[0])
+
         Subj_choice = dcc.Markdown(f'**Subject**: {Subject[0]}') 
         Fr_choice = dcc.Markdown(f'**From**: {From[0]}') 
         Dat_choice = dcc.Markdown(f'**Date**: {Date[0]}')
-        summary_txt = html.Div(f'Sentiment Analysis: {summary(Body[0])}')
-        sentiment_txt = html.Div(f'Sentiment Analysis: {sentiment(summary_txt)}')
+        
+        summary_text = summary(Body[0])
+        sentiment_text = sentiment(summary_text)
+        summary_txt = dcc.Markdown(f'**Summary**: {summary_text}')
+        sentiment_txt = dcc.Markdown(f'**Sentiment Analysis**: {sentiment_text}', style={'color':f'{sent_color[sentiment_text.split(" ")[0]]}'})        
         
         return [Subj_choice, Fr_choice, Dat_choice, Body[0]], \
     str(email_start) + ' - ' + str(email_end), grouped_Div[0], \
@@ -530,13 +620,15 @@ def forward_range(n_clicks,email_range):
                                #       'cursor': 'pointer',
                                #       },
                             id=f'email_{i}') for i, (Subj,Fr,Dat) in enumerate(zip(Subject, From, Date))]
-        print(grouped_Div[0])
         
         Subj_choice = dcc.Markdown(f'**Subject**: {Subject[0]}')
         Fr_choice = dcc.Markdown(f'**From**: {From[0]}')
         Dat_choice = dcc.Markdown(f'**Date**: {Date[0]}')
-        summary_txt = html.Div(f'Sentiment Analysis: {summary(Body[0])}')
-        sentiment_txt = html.Div(f'Sentiment Analysis: {sentiment(summary_txt)}')
+        
+        summary_text = summary(Body[0])
+        sentiment_text = sentiment(summary_text)
+        summary_txt = dcc.Markdown(f'**Summary**: {summary_text}')
+        sentiment_txt = dcc.Markdown(f'**Sentiment Analysis**: {sentiment_text}', style={'color':f'{sent_color[sentiment_text.split(" ")[0]]}'})
         
         return [Subj_choice, Fr_choice, Dat_choice, Body[0]], \
     str(email_start) + ' - ' + str(email_end), grouped_Div[0], \
@@ -545,6 +637,12 @@ def forward_range(n_clicks,email_range):
     
 
 
+@app.callback(
+    Output('reply','children'),
+    Input('text_generation','n_clicks'),
+    State('body','children')
+)
 
-
-
+def generate_text(n_clicks,body):
+    text = auto_reply(body)
+    return text
