@@ -268,6 +268,7 @@ def summary(text):
     #print(summary[0]['summary_text'])
     return summary[0]['summary_text']
 
+"""
 # Have to login in with "huggingface-cli login"
 # Automatic reply text generation
 login(token=os.getenv('HF_READ'))
@@ -294,7 +295,7 @@ def auto_reply(text):
     )
     print(outputs)
     return outputs[0]["generated_text"][-1]
-
+"""
 #---------------------------------------------------------------------------------------------------
 # Initialize the Flask and Dash app
 #---------------------------------------------------------------------------------------------------
@@ -647,5 +648,6 @@ def forward_range(n_clicks,email_range):
 )
 
 def generate_text(n_clicks,body):
-    text = auto_reply(body)
+    text = 'testing'
+    #text = auto_reply(body)
     return text
