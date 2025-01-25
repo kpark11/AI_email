@@ -8,7 +8,7 @@ html {
 
 body {
 	display: grid;
-	// place-content: left;
+	/* place-content: left;*/
 	color: hsl(49 77% 98%);
 	font-family: Open Sans;
 	background: linear-gradient(125deg, rgba(0,0,0,1) 54%, rgba(61,61,64,1) 73%, hsla(304 100% 0% / 0.75));
@@ -20,8 +20,43 @@ body {
 .header {
 	font-size: 70px;
 	padding-left: 600px;
+	background: gray;
+	border-radius: 10px;
+	align-content: top;
 }
 
+.dropdown {
+	width: 200px;
+}
+
+.inlineblock {
+	display: inline-block;
+}
+
+.range {
+	padding-left:80px;
+	padding-right: 20px;
+}
+
+.left-button {
+	padding-left: 3px;
+	width: 30px;
+	align-items: center;
+	justify-content: center;
+	border-radius: 5px;
+	background: linear-gradient(to right, #76b852 0%, #8DC26F  51%, #76b852  100%);
+	/*border: 1px solid rgba(0,0,0,0.3);*/
+}
+
+.list-inside {
+	border: 1px solid rgba(225, 225, 225, .3);
+	width: 450px;
+	text-align: left;
+	padding-left: 5px;
+	padding-top: 5px;
+	border-radius: 10px;
+	cursor: pointer;
+}
 
 .list:hover {
     opacity: 0.5;
@@ -29,6 +64,24 @@ body {
 
     -webkit-transition: all 0.5s linear;
     transition: all 0.5s linear;
+}
+
+.body-inside {
+	overflow-y: auto;
+	overflow-wrap: break-word;
+}
+
+.loading {
+	vertical-align: top;
+	padding-left: 30px;
+	width: 600px;
+	height: 600px;
+}
+
+.reply{
+	width: 200px;
+	vertical-align: top;
+	padding-left: 100px;
 }
 
 .scrollbar_style::-webkit-scrollbar {

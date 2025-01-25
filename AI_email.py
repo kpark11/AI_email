@@ -370,27 +370,14 @@ app.layout = html.Div([
                   'value': selection.decode("utf-8").split('"/"')[-1]} for selection in selections],
         value='INBOX',
         #placeholder='Selection',
-        style={'width':'200px'}
+        className='dropdown',
         ),
     html.Br(),
-    html.Div(f'Total number of emails: {str(messages)}', style={'display':'inline-block'}),
-    html.Div(f'{start_n} - {end_n}', style={'display':'inline-block',
-                                            'padding-left':'80px','padding-right':'20px'},
+    html.Div(f'Total number of emails: {str(messages)}', className='inlineblock'),
+    html.Div(f'{start_n} - {end_n}', className = 'inlineblock range',
              id='email_range'),
-    html.Button('<', style={'display':'inline-block','padding-left':'3px','width':'30px',
-                            'align-items': 'center', 'justify-content': 'center',
-                            'border-radius':'5px',
-                            'background':'linear-gradient(to right, #76b852 0%, #8DC26F  51%, #76b852  100%)',
-                            #'border':'1px solid rgba(0,0,0,.3)',
-                            },
-                id='back'),
-    html.Button('>', style={'display':'inline-block','padding-left':'3px','width':'30px',
-                            'align-items': 'center', 'justify-content': 'center',
-                            'border-radius':'5px', 
-                            'background':'linear-gradient(to right, #76b852 0%, #8DC26F  51%, #76b852  100%)',
-                            #'border':'1px solid rgba(0,0,0,.3)',
-                            },
-                id='forward'),
+    html.Button('<', className = 'inlineblock left-button', id='back'),
+    html.Button('>', className = 'inlineblock left-button', id='forward'),
     
          
     html.Br(),
@@ -398,29 +385,15 @@ app.layout = html.Div([
                         dcc.Markdown(f'**From**: {Fr}'), 
                         dcc.Markdown(f'**Date**: {Dat}'), 
                         #html.Br(),
-                        ], style={'border':'1px solid rgba(225, 225, 225, .3)',
-                                  'width':'450px',
-                                  #'text-align':'center',
-                                  'padding-left':'5px',
-                                  'padding-top':'5px',
-                                  'border-radius':'10px',
-                                  'cursor': 'pointer',
-                                  },
-                        id=f'email_{i}',
-                        className='list') 
-              for i, (Subj,Fr,Dat) in enumerate(zip(Subject, From, Date))], style={'display':'inline-block'}),
+                        ], className = 'list-inside list', id=f'email_{i}') 
+              for i, (Subj,Fr,Dat) in enumerate(zip(Subject, From, Date))], className = 'inlineblock'),
     html.Div(dcc.Loading([
                     dcc.Markdown(f'**Subject**: {Subject[0]}'),
                     dcc.Markdown(f'**From**: {From[0]}'),
                     dcc.Markdown(f'**Date**: {Date[0]}'),
 
-                    html.Div(f'{Body[0]}',id='body', style={'overflow-y':'auto','overflow-wrap':'break-word',},
-                             className="scrollbar_style")], 
-        type='circle', id='loading'), style={'display':'inline-block',
-                                                     'vertical-align': 'top',
-                                                     'padding-left':'30px',
-                                                     'overflow-y':'auto','overflow-wrap':'break-word',
-                                                     'width':'600px','height':'600px',}, className="scrollbar_style"),
+                    html.Div(f'{Body[0]}',id='body', className="body-inside scrollbar_style")], 
+        type='circle', id='loading'), className="inlineblock body-inside loading scrollbar_style"),
     html.Div([html.Div([
         dcc.Loading(dcc.Markdown(f'**Sentiment Analysis**: {sentiment_text}', style={'color':f'{sent_color[sentiment_text.split(" ")[0]]}'}), id='sentiment-analysis'),
         html.Br(),
@@ -428,13 +401,9 @@ app.layout = html.Div([
         dcc.Loading(dcc.Markdown(f'**Summary**: {summary_text}'), id='summary'),
         html.Br(),
         html.Br(),
-        html.Button('Automatic Reply', id='text_generation', className='Button'),
+        html.Button('Automatic Reply', id='text_generation', className = 'inlineblock Button'),
         dcc.Loading('', id='reply')
-             ])], style={'width':'200px', 'display':'inline-block', 'vertical-align':'top',
-                         'padding-left':'100px'}),
-    
-
-                                                                                
+             ])], className = 'inlineblock reply'),                                                  
     ], className='body')
 
 
@@ -648,6 +617,6 @@ def forward_range(n_clicks,email_range):
 )
 
 def generate_text(n_clicks,body):
-    text = 'testing'
+    text = 'testing. Coming soon.'
     #text = auto_reply(body)
     return text
