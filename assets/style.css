@@ -18,15 +18,16 @@ body {
 }
 
 .header {
-	font-size: 70px;
-	padding-left: 600px;
+	font-size: 50px;
+	text-align: center;
 	background: gray;
-	border-radius: 10px;
-	align-content: top;
+	border-radius: 100px;
+	
 }
 
 .dropdown {
 	width: 200px;
+	color: black;
 }
 
 .inlineblock {
