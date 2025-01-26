@@ -395,14 +395,20 @@ app.layout = html.Div([
                     html.Div(f'{Body[0]}',id='body', className="body-inside scrollbar_style")], 
         type='circle', id='loading'), className="inlineblock body-inside loading scrollbar_style"),
     html.Div([html.Div([
-        dcc.Loading(dcc.Markdown(f'**Sentiment Analysis**: {sentiment_text}', style={'color':f'{sent_color[sentiment_text.split(" ")[0]]}'}), id='sentiment-analysis'),
+        dcc.Loading(html.Div(dcc.Markdown(f'**Sentiment Analysis**: {sentiment_text}', 
+                                 style={'color':f'{sent_color[sentiment_text.split(" ")[0]]}'}), 
+                    id='sentiment-analysis',
+                    className='card bg blob')),
         html.Br(),
         html.Br(),
-        dcc.Loading(dcc.Markdown(f'**Summary**: {summary_text}'), id='summary'),
+        dcc.Loading(html.Div(dcc.Markdown(f'**Summary**: {summary_text}'), 
+                             id='summary', className='card bg blob')),
         html.Br(),
         html.Br(),
         html.Button('Automatic Reply', id='text_generation', className = 'inlineblock Button'),
-        dcc.Loading('', id='reply')
+        dcc.Loading(html.Div([html.Div('testing phase', id='reply', className='bg'),
+                             html.Div(className='blob')],
+                             className='card'))
              ])], className = 'inlineblock reply'),                                                  
     ], className='body')
 
