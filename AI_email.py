@@ -395,14 +395,13 @@ app.layout = html.Div([
         type='circle', id='loading'), className="inlineblock body-inside loading scrollbar_style"),
     html.Div([
         dcc.Loading(dcc.Markdown(f'**Sentiment Analysis**: {sentiment_text}', 
-                                 id='sentiment-analysis',
-                                 style={'color':f'{color}'})),
+                                 style={'color':f'{color}'}), id='sentiment-analysis',),
         html.Br(),
         html.Br(),
-        dcc.Loading(html.Div([html.Div(dcc.Markdown(f'**Summary**: {summary_text}', id='summary'), 
+        dcc.Loading(html.Div([html.Div(dcc.Markdown(f'**Summary**: {summary_text}'), 
                                        className = 'bg scrollbar_style'),
                              html.Div('', className='blob')], 
-                             className='card')),
+                             className='card'), id='summary'),
         html.Br(),
         html.Br(),
         html.Div(
@@ -434,7 +433,11 @@ def Click_for_body_0(n_click):
     Fr_choice = dcc.Markdown(f'**From**: {From[0]}') 
     Dat_choice = dcc.Markdown(f'**Date**: {Date[0]}')
     summary_text = summary(Body[0])
-    summary_txt = dcc.Markdown(f'**Summary**: {summary_text}')
+    sentiment_text = sentiment(summary_text)
+    summary_txt = html.Div([html.Div(dcc.Markdown(f'**Summary**: {summary_text}'), 
+                                   className = 'bg scrollbar_style'),
+                         html.Div('', className='blob')], 
+                         className='card')
     color = sent_color[sentiment_text.split(" ")[0]]
     sentiment_txt = dcc.Markdown(f'**Sentiment Analysis**: {sentiment_text}', style={'color':f'{color}'})  
     return [Subj_choice, Fr_choice, Dat_choice, Body[0]], 0, sentiment_txt, summary_txt
@@ -453,9 +456,13 @@ def Click_for_body_1(n_click):
     Fr_choice = dcc.Markdown(f'**From**: {From[1]}') 
     Dat_choice = dcc.Markdown(f'**Date**: {Date[1]}')
     summary_text = summary(Body[1])
-    summary_txt = dcc.Markdown(f'**Summary**: {summary_text}')
+    sentiment_text = sentiment(summary_text)
+    summary_txt = html.Div([html.Div(dcc.Markdown(f'**Summary**: {summary_text}'), 
+                                   className = 'bg scrollbar_style'),
+                         html.Div('', className='blob')], 
+                         className='card')
     color = sent_color[sentiment_text.split(" ")[0]]
-    sentiment_txt = dcc.Markdown(f'**Sentiment Analysis**: {sentiment_text}', style={'color':f'{color}'})  
+    sentiment_txt = dcc.Markdown(f'**Sentiment Analysis**: {sentiment_text}', style={'color':f'{color}'})
     return [Subj_choice, Fr_choice, Dat_choice, Body[1]], 0, sentiment_txt, summary_txt
     
     
@@ -473,7 +480,11 @@ def Click_for_body_2(n_click):
     Fr_choice = dcc.Markdown(f'**From**: {From[2]}') 
     Dat_choice = dcc.Markdown(f'**Date**: {Date[2]}')
     summary_text = summary(Body[2])
-    summary_txt = dcc.Markdown(f'**Summary**: {summary_text}')
+    sentiment_text = sentiment(summary_text)
+    summary_txt = html.Div([html.Div(dcc.Markdown(f'**Summary**: {summary_text}'), 
+                                   className = 'bg scrollbar_style'),
+                         html.Div('', className='blob')], 
+                         className='card')
     color = sent_color[sentiment_text.split(" ")[0]]
     sentiment_txt = dcc.Markdown(f'**Sentiment Analysis**: {sentiment_text}', style={'color':f'{color}'})  
     return [Subj_choice, Fr_choice, Dat_choice, Body[2]], 0, sentiment_txt, summary_txt
@@ -493,7 +504,11 @@ def Click_for_body_3(n_click):
     Fr_choice = dcc.Markdown(f'**From**: {From[3]}') 
     Dat_choice = dcc.Markdown(f'**Date**: {Date[3]}')
     summary_text = summary(Body[3])
-    summary_txt = dcc.Markdown(f'**Summary**: {summary_text}')
+    sentiment_text = sentiment(summary_text)
+    summary_txt = html.Div([html.Div(dcc.Markdown(f'**Summary**: {summary_text}'), 
+                                   className = 'bg scrollbar_style'),
+                         html.Div('', className='blob')], 
+                         className='card')
     color = sent_color[sentiment_text.split(" ")[0]]
     sentiment_txt = dcc.Markdown(f'**Sentiment Analysis**: {sentiment_text}', style={'color':f'{color}'})  
     return [Subj_choice, Fr_choice, Dat_choice, Body[3]], 0, sentiment_txt, summary_txt
@@ -513,7 +528,11 @@ def Click_for_body_4(n_click):
     Fr_choice = dcc.Markdown(f'**From**: {From[4]}') 
     Dat_choice = dcc.Markdown(f'**Date**: {Date[4]}')
     summary_text = summary(Body[4])
-    summary_txt = dcc.Markdown(f'**Summary**: {summary_text}')
+    sentiment_text = sentiment(summary_text)
+    summary_txt = html.Div([html.Div(dcc.Markdown(f'**Summary**: {summary_text}'), 
+                                   className = 'bg scrollbar_style'),
+                         html.Div('', className='blob')], 
+                         className='card')
     color = sent_color[sentiment_text.split(" ")[0]]
     sentiment_txt = dcc.Markdown(f'**Sentiment Analysis**: {sentiment_text}', style={'color':f'{color}'})        
     return [Subj_choice, Fr_choice, Dat_choice, Body[4]], 0, sentiment_txt, summary_txt
@@ -562,7 +581,10 @@ def back_range(n_clicks,email_range):
         
         summary_text = summary(Body[0])
         sentiment_text = sentiment(summary_text)
-        summary_txt = dcc.Markdown(f'**Summary**: {summary_text}')
+        summary_txt = html.Div([html.Div(dcc.Markdown(f'**Summary**: {summary_text}'), 
+                                       className = 'bg scrollbar_style'),
+                             html.Div('', className='blob')], 
+                             className='card')
         color = sent_color[sentiment_text.split(" ")[0]]
         sentiment_txt = dcc.Markdown(f'**Sentiment Analysis**: {sentiment_text}', style={'color':f'{color}'})       
         
@@ -616,7 +638,10 @@ def forward_range(n_clicks,email_range):
         
         summary_text = summary(Body[0])
         sentiment_text = sentiment(summary_text)
-        summary_txt = dcc.Markdown(f'**Summary**: {summary_text}')
+        summary_txt = html.Div([html.Div(dcc.Markdown(f'**Summary**: {summary_text}'), 
+                                       className = 'bg scrollbar_style'),
+                             html.Div('', className='blob')], 
+                             className='card')
         color = sent_color[sentiment_text.split(" ")[0]]
         sentiment_txt = dcc.Markdown(f'**Sentiment Analysis**: {sentiment_text}', style={'color':f'{color}'})  
         
