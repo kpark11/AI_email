@@ -407,7 +407,7 @@ app.layout = html.Div([
         html.Br(),
         html.Button('Automatic Reply', id='text_generation', className = 'inlineblock Button'),
         dcc.Loading(html.Div([html.Div('testing phase', id='reply', className='bg'),
-                             html.Div(className='blob')],
+                             html.Div('', className='blob')],
                              className='card'))
              ])], className = 'inlineblock reply'),                                                  
     ], className='body')
