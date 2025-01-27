@@ -352,6 +352,7 @@ Subject, From, Date, Body = getEmail(con, messages, messages-5)
 summary_text = summary(Body[0])
 sentiment_text = sentiment(summary_text)
 sent_color = {'positive':'green', 'neutral':'yellow', 'negative':'red'}
+color = sent_color[sentiment_text.split(" ")[0]]
 #---------------------------------------------------------------------------------------------------
 # Create the layout of the app
 #---------------------------------------------------------------------------------------------------
@@ -376,10 +377,8 @@ app.layout = html.Div([
     html.Div(f'Total number of emails: {str(messages)}', className='inlineblock'),
     html.Div(f'{start_n} - {end_n}', className = 'inlineblock range',
              id='email_range'),
-    html.Button('<', className = 'inlineblock left-button', id='back'),
-    html.Button('>', className = 'inlineblock left-button', id='forward'),
-    
-         
+    html.Div(html.Button('<', className = 'inlineblock button', id='back'), className='container'),
+    html.Div(html.Button('>', className = 'inlineblock button', id='forward'), className='container'),
     html.Br(),
     html.Div([html.Div([dcc.Markdown(f'**Subject**: {Subj}'), 
                         dcc.Markdown(f'**From**: {Fr}'), 
@@ -394,23 +393,29 @@ app.layout = html.Div([
 
                     html.Div(f'{Body[0]}',id='body', className="body-inside scrollbar_style")], 
         type='circle', id='loading'), className="inlineblock body-inside loading scrollbar_style"),
-    html.Div([html.Div([
-        dcc.Loading(html.Div(dcc.Markdown(f'**Sentiment Analysis**: {sentiment_text}', 
-                                 style={'color':f'{sent_color[sentiment_text.split(" ")[0]]}'}), 
-                    id='sentiment-analysis',
-                    className='card bg blob')),
+    html.Div([
+        dcc.Loading(dcc.Markdown(f'**Sentiment Analysis**: {sentiment_text}', 
+                                 id='sentiment-analysis',
+                                 style={'color':f'{color}'})),
         html.Br(),
         html.Br(),
-        dcc.Loading(html.Div(dcc.Markdown(f'**Summary**: {summary_text}'), 
-                             id='summary', className='card bg blob')),
+        dcc.Loading(html.Div([html.Div(dcc.Markdown(f'**Summary**: {summary_text}', id='summary'), 
+                                       className = 'bg scrollbar_style'),
+                             html.Div('', className='blob')], 
+                             className='card')),
         html.Br(),
         html.Br(),
-        html.Button('Automatic Reply', id='text_generation', className = 'inlineblock Button'),
-        dcc.Loading(html.Div([html.Div('testing phase', id='reply', className='bg'),
+        html.Div(
+            html.Button('Automatic Reply', id='text_generation', className = 'button inlineblock'),
+            className='container'),
+        html.Br(),
+        html.Br(),
+        dcc.Loading(html.Div([html.Div('testing phase', id='reply', className='bg scrollbar_style'),
                              html.Div('', className='blob')],
                              className='card'))
-             ])], className = 'inlineblock reply'),                                                  
-    ], className='body')
+             ], className = 'inlineblock reply'),                                          
+    ], 
+className='body')
 
 
 
@@ -430,8 +435,8 @@ def Click_for_body_0(n_click):
     Dat_choice = dcc.Markdown(f'**Date**: {Date[0]}')
     summary_text = summary(Body[0])
     summary_txt = dcc.Markdown(f'**Summary**: {summary_text}')
-    sentiment_txt = dcc.Markdown(f'**Sentiment Analysis**: {sentiment_text}', style={'color':f'{sent_color[sentiment_text.split(" ")[0]]}'})        
-    
+    color = sent_color[sentiment_text.split(" ")[0]]
+    sentiment_txt = dcc.Markdown(f'**Sentiment Analysis**: {sentiment_text}', style={'color':f'{color}'})  
     return [Subj_choice, Fr_choice, Dat_choice, Body[0]], 0, sentiment_txt, summary_txt
     
 @app.callback(
@@ -444,12 +449,13 @@ def Click_for_body_0(n_click):
 )
     
 def Click_for_body_1(n_click):
-    Subj_choice = dcc.Markdown(f'**Subject**: {Subject[1]}') 
+    Subj_choice = dcc.Markdown(f'**Subject**: {Subject[1]}')
     Fr_choice = dcc.Markdown(f'**From**: {From[1]}') 
     Dat_choice = dcc.Markdown(f'**Date**: {Date[1]}')
     summary_text = summary(Body[1])
     summary_txt = dcc.Markdown(f'**Summary**: {summary_text}')
-    sentiment_txt = dcc.Markdown(f'**Sentiment Analysis**: {sentiment_text}', style={'color':f'{sent_color[sentiment_text.split(" ")[0]]}'})        
+    color = sent_color[sentiment_text.split(" ")[0]]
+    sentiment_txt = dcc.Markdown(f'**Sentiment Analysis**: {sentiment_text}', style={'color':f'{color}'})  
     return [Subj_choice, Fr_choice, Dat_choice, Body[1]], 0, sentiment_txt, summary_txt
     
     
@@ -468,7 +474,8 @@ def Click_for_body_2(n_click):
     Dat_choice = dcc.Markdown(f'**Date**: {Date[2]}')
     summary_text = summary(Body[2])
     summary_txt = dcc.Markdown(f'**Summary**: {summary_text}')
-    sentiment_txt = dcc.Markdown(f'**Sentiment Analysis**: {sentiment_text}', style={'color':f'{sent_color[sentiment_text.split(" ")[0]]}'})        
+    color = sent_color[sentiment_text.split(" ")[0]]
+    sentiment_txt = dcc.Markdown(f'**Sentiment Analysis**: {sentiment_text}', style={'color':f'{color}'})  
     return [Subj_choice, Fr_choice, Dat_choice, Body[2]], 0, sentiment_txt, summary_txt
     
     
@@ -487,7 +494,8 @@ def Click_for_body_3(n_click):
     Dat_choice = dcc.Markdown(f'**Date**: {Date[3]}')
     summary_text = summary(Body[3])
     summary_txt = dcc.Markdown(f'**Summary**: {summary_text}')
-    sentiment_txt = dcc.Markdown(f'**Sentiment Analysis**: {sentiment_text}', style={'color':f'{sent_color[sentiment_text.split(" ")[0]]}'})        
+    color = sent_color[sentiment_text.split(" ")[0]]
+    sentiment_txt = dcc.Markdown(f'**Sentiment Analysis**: {sentiment_text}', style={'color':f'{color}'})  
     return [Subj_choice, Fr_choice, Dat_choice, Body[3]], 0, sentiment_txt, summary_txt
     
     
@@ -506,7 +514,8 @@ def Click_for_body_4(n_click):
     Dat_choice = dcc.Markdown(f'**Date**: {Date[4]}')
     summary_text = summary(Body[4])
     summary_txt = dcc.Markdown(f'**Summary**: {summary_text}')
-    sentiment_txt = dcc.Markdown(f'**Sentiment Analysis**: {sentiment_text}', style={'color':f'{sent_color[sentiment_text.split(" ")[0]]}'})        
+    color = sent_color[sentiment_text.split(" ")[0]]
+    sentiment_txt = dcc.Markdown(f'**Sentiment Analysis**: {sentiment_text}', style={'color':f'{color}'})        
     return [Subj_choice, Fr_choice, Dat_choice, Body[4]], 0, sentiment_txt, summary_txt
     
 @app.callback(
@@ -554,7 +563,8 @@ def back_range(n_clicks,email_range):
         summary_text = summary(Body[0])
         sentiment_text = sentiment(summary_text)
         summary_txt = dcc.Markdown(f'**Summary**: {summary_text}')
-        sentiment_txt = dcc.Markdown(f'**Sentiment Analysis**: {sentiment_text}', style={'color':f'{sent_color[sentiment_text.split(" ")[0]]}'})        
+        color = sent_color[sentiment_text.split(" ")[0]]
+        sentiment_txt = dcc.Markdown(f'**Sentiment Analysis**: {sentiment_text}', style={'color':f'{color}'})       
         
         return [Subj_choice, Fr_choice, Dat_choice, Body[0]], \
     str(email_start) + ' - ' + str(email_end), grouped_Div[0], \
@@ -607,7 +617,8 @@ def forward_range(n_clicks,email_range):
         summary_text = summary(Body[0])
         sentiment_text = sentiment(summary_text)
         summary_txt = dcc.Markdown(f'**Summary**: {summary_text}')
-        sentiment_txt = dcc.Markdown(f'**Sentiment Analysis**: {sentiment_text}', style={'color':f'{sent_color[sentiment_text.split(" ")[0]]}'})
+        color = sent_color[sentiment_text.split(" ")[0]]
+        sentiment_txt = dcc.Markdown(f'**Sentiment Analysis**: {sentiment_text}', style={'color':f'{color}'})  
         
         return [Subj_choice, Fr_choice, Dat_choice, Body[0]], \
     str(email_start) + ' - ' + str(email_end), grouped_Div[0], \
@@ -619,7 +630,8 @@ def forward_range(n_clicks,email_range):
 @app.callback(
     Output('reply','children'),
     Input('text_generation','n_clicks'),
-    State('body','children')
+    State('body','children'),
+    prevent_initial_call=True,
 )
 
 def generate_text(n_clicks,body):
