@@ -18,31 +18,18 @@ import dash
 from dash import dcc, html, State
 from dash.dependencies import Input, Output
 from dash.exceptions import PreventUpdate
-import dash_bootstrap_components as dbc
-import plotly.graph_objs as go
-import plotly.express as px
 
 from bs4 import BeautifulSoup
-
-# For Sentiment Analysis
-from transformers import AutoModelForSequenceClassification
-from transformers import TFAutoModelForSequenceClassification
-from transformers import AutoTokenizer, AutoConfig
-import numpy as np
-from scipy.special import softmax
 
 from transformers import pipeline
 
 import re
-from spellchecker import SpellChecker
+#from spellchecker import SpellChecker
 from langdetect import detect
 from num2words import num2words
 import emoji
 from nltk import word_tokenize
 from unidecode import unidecode
-import torch
-import transformers
-from huggingface_hub import login
 
 
 def getEmail(con, start, end):
@@ -330,7 +317,6 @@ app.run_server(debug=True)
 
 
 
-
 # calling function to check for email under this label
 status, selections = con.list()
 #print('Status:', status)
@@ -338,7 +324,7 @@ status, selections = con.list()
 #print('selections:')
 #for selection in selections:
 #    print(selection.decode("utf-8").split('"/"'))
-status, messages = con.select('Inbox') 
+status, messages = con.select('Inbox')
 #print('\n')
 
 # total number of emails
