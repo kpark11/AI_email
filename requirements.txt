@@ -2,7 +2,7 @@ pip==24.0
 beautifulsoup4==4.13.3
 dash==2.18.2
 emoji==2.14.1
-Flask==3.1.0
+Flask==2.2.5
 flask_login==0.6.3
 langdetect==1.0.9
 nltk==3.9.1
