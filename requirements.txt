@@ -1,3 +1,4 @@
+pip==24.0
 beautifulsoup4==4.13.3
 dash==2.18.2
 emoji==2.14.1
