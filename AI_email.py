@@ -317,7 +317,7 @@ server.config.update(SECRET_KEY=os.getenv("SECRET_KEY"))
 app.title = "AI email"
 app.style = {'textAlign':'center','color':'#000000','font-size':24}
 
-app.run_server(debug=True)
+server = app.server()
 
 
 
