@@ -144,7 +144,7 @@ def getEmail(con, start, end):
 
 
 # This loads the .env file
-load_dotenv('.env')
+load_dotenv('.env',override=True)
 
 
 
@@ -195,17 +195,19 @@ def truncate(text):
     text = ' '.join(tokens)
     return text
 
-'''
-def correct_spelling(text):
-    spell = SpellChecker()
-    tokens = word_tokenize(text)
-    print('tokens: ', tokens)
-    corrected_tokens = [spell.correction(word) if word != None else '' for word in tokens]
-    print('corrected_tokens: ', corrected_tokens)
-    corrected_text = ' '.join(corrected_tokens)
-    print('corrected_text: ', corrected_text)
-    return corrected_text
-'''
+
+# =============================================================================
+# def correct_spelling(text):
+#     spell = SpellChecker()
+#     tokens = word_tokenize(text)
+#     print('tokens: ', tokens)
+#     corrected_tokens = [spell.correction(word) if word != None else '' for word in tokens]
+#     print('corrected_tokens: ', corrected_tokens)
+#     corrected_text = ' '.join(corrected_tokens)
+#     print('corrected_text: ', corrected_text)
+#     return corrected_text
+# =============================================================================
+
 
 def detect_language(text):
     try:
@@ -255,34 +257,36 @@ def summary(text):
     #print(summary[0]['summary_text'])
     return summary[0]['summary_text']
 
-"""
-# Have to login in with "huggingface-cli login"
-# Automatic reply text generation
-login(token=os.getenv('HF_READ'))
-gen_model_id = "meta-llama/Meta-Llama-3.1-70B-Instruct"
-pipeline = transformers.pipeline(
-    "text-generation",
-    model=gen_model_id,
-    model_kwargs={"torch_dtype": torch.bfloat16},
-    device_map="auto",
-    
-)
 
-def auto_reply(text):
-    
-    messages = [
-        {"role": "system", "content": "You are a pirate chatbot who always \
-         responds in pirate speak! You are currently reply to a given email."},
-        {"role": "user", "content": f"{text}"},
-    ]
-    
-    outputs = pipeline(
-        messages,
-        max_new_tokens=400,
-    )
-    print(outputs)
-    return outputs[0]["generated_text"][-1]
-"""
+# =============================================================================
+# # Have to login in with "huggingface-cli login"
+# # Automatic reply text generation
+# login(token=os.getenv('HF_READ'))
+# gen_model_id = "meta-llama/Meta-Llama-3.1-70B-Instruct"
+# pipeline = transformers.pipeline(
+#     "text-generation",
+#     model=gen_model_id,
+#     model_kwargs={"torch_dtype": torch.bfloat16},
+#     device_map="auto",
+#     
+# )
+# 
+# def auto_reply(text):
+#     
+#     messages = [
+#         {"role": "system", "content": "You are a pirate chatbot who always \
+#          responds in pirate speak! You are currently reply to a given email."},
+#         {"role": "user", "content": f"{text}"},
+#     ]
+#     
+#     outputs = pipeline(
+#         messages,
+#         max_new_tokens=400,
+#     )
+#     print(outputs)
+#     return outputs[0]["generated_text"][-1]
+# =============================================================================
+
 #---------------------------------------------------------------------------------------------------
 # Initialize the Flask and Dash app
 #---------------------------------------------------------------------------------------------------
@@ -319,17 +323,17 @@ app.run_server(debug=True)
 
 # calling function to check for email under this label
 status, selections = con.list()
-#print('Status:', status)
-#print('\n')
-#print('selections:')
-#for selection in selections:
-#    print(selection.decode("utf-8").split('"/"'))
+# print('Status:', status)
+# print('\n')
+# print('selections:')
+# for selection in selections:
+#     print(selection.decode("utf-8").split('"/"'))
 status, messages = con.select('Inbox')
 #print('\n')
 
 # total number of emails
 messages = int(messages[0])
-#print('number of messages: ' + str(messages) + '\n\n')
+# print('number of messages: ' + str(messages) + '\n\n')
 
 start_n = 0
 end_n = 5
